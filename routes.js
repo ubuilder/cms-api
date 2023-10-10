@@ -85,7 +85,26 @@ function test(params) {
     }
 }
 
+// auth
 routes.get("/auth/login", handle(login));
 routes.get("/auth/logout", handle(logout));
 routes.get("/auth/register", handle(register));
-routes.get('/test', auth, handle(test))
+
+// content
+routes.get("/content/createTable", handle(createTable))
+routes.get("/content/getTables", handle(getTables))
+routes.get("/content/updateTable", handle(updateTable))
+routes.get("/content/removeTable", handle(removeTable))
+
+// data
+routes.get("/data/insertData", handle(insertData))
+routes.get("/data/editData", handle(editData))
+routes.get("/data/updateData", handle(updateData))
+routes.get("/data/removeData", handle(removeData))
+
+// pages
+routes.get("/pages/createPage", handle(createPage))
+routes.get("/pages/updatePage", handle(updatePage))
+routes.get("/pages/removePage", handle(removePage))
+routes.get("/pages/getPages", handle(getPages))
+
