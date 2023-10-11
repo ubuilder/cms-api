@@ -6,9 +6,9 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: alpine-latest
+    runs-on: ubuntu-latest
 
-    
+
     steps:
       - uses: appleboy/ssh-action@v1.0.0
         with:
