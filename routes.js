@@ -4,6 +4,8 @@ import { getUser, login, logout, register } from "./api/auth.js";
 import { connect } from "@ulibs/db";
 import jwt from "jsonwebtoken";
 import { createPage, getPages, removePage, updatePage } from "./api/pages.js";
+import { createTable, getTables, removeTable, updateTable } from "./api/content.js";
+import { getData, insertData, removeData, updateData } from "./api/data.js";
 
 async function auth(req, res, next) {
   try {
@@ -116,16 +118,16 @@ routes.post("/auth/register", handle(register));
 routes.post("/auth/getUser", auth, handle(getUser));
 
 // content
-// routes.get("/content/createTable", handle(createTable))
-// routes.get("/content/getTables", handle(getTables))
-// routes.get("/content/updateTable", handle(updateTable))
-// routes.get("/content/removeTable", handle(removeTable))
+routes.get("/content/createTable", auth, handle(createTable))
+routes.get("/content/getTables", auth, handle(getTables))
+routes.get("/content/updateTable", auth, handle(updateTable))
+routes.get("/content/removeTable", auth, handle(removeTable))
 
-// // data
-// routes.get("/data/insertData", handle(insertData))
-// routes.get("/data/editData", handle(editData))
-// routes.get("/data/updateData", handle(updateData))
-// routes.get("/data/removeData", handle(removeData))
+// data
+routes.get("/data/insertData", handle(insertData))
+routes.get("/data/getData", handle(getData))
+routes.get("/data/updateData", handle(updateData))
+routes.get("/data/removeData", handle(removeData))
 
 // pages
 routes.post("/pages/createPage", auth, handle(createPage))
