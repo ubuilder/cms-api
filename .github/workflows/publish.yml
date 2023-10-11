@@ -1,4 +1,4 @@
-name: Build & Deploy
+name: Deploy
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: alpine-latest
 
     steps:
       - uses: appleboy/ssh-action@v1.0.0
