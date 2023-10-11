@@ -14,7 +14,7 @@ const {PORT = 3000} = process.env
 app.use('/api/:siteId/', routes)
 
 app.get('/', (req, res) => {
-    res.send('server is up!!!')
+    res.send('server is up!')
 
 })
 
