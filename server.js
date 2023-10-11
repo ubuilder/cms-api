@@ -11,7 +11,7 @@ const {PORT = 3000} = process.env
 
 
 
-app.use('/api', routes)
+app.use('/api/:siteId/', routes)
 
 app.listen(PORT,()=>{
     console.log("start on http://localhost:"+PORT)

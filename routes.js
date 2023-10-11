@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import { createPage, getPages, removePage, updatePage } from "./api/pages.js";
 import { createTable, getTables, removeTable, updateTable } from "./api/content.js";
 import { getData, insertData, removeData, updateData } from "./api/data.js";
+import { getFile, removeFile, updateFile, uploadFile } from "./api/assets.js";
 
 async function auth(req, res, next) {
   try {
@@ -48,7 +49,7 @@ async function getHandler(req, cb) {
 
   const user = req.user ?? null;
 
-  const db = connect({ filename: "./data.json" }).getModel;
+  const db = connect({ filename: `./data/${params.siteId}/db.json` }).getModel;
 
   try {
     return await cb({ body, params, headers, query, db, user });
@@ -79,16 +80,6 @@ function handle(cb) {
 }
 
 const routes = Router();
-
-function test(params) {
-    console.log(params)
-    return {
-        status: 200,
-        message: 'Successfully',
-        data: params
-    }
-}
-
 
 // async function addFolderRoutes(folder = './api') {
 //   const files = await readdir(folder)
@@ -124,14 +115,41 @@ routes.get("/content/updateTable", auth, handle(updateTable))
 routes.get("/content/removeTable", auth, handle(removeTable))
 
 // data
-routes.get("/data/insertData", handle(insertData))
-routes.get("/data/getData", handle(getData))
-routes.get("/data/updateData", handle(updateData))
-routes.get("/data/removeData", handle(removeData))
+routes.get("/data/insertData", auth, handle(insertData))
+routes.get("/data/getData", auth, handle(getData))
+routes.get("/data/updateData", auth, handle(updateData))
+routes.get("/data/removeData", auth, handle(removeData))
 
 // pages
 routes.post("/pages/createPage", auth, handle(createPage))
 routes.post("/pages/updatePage", auth, handle(updatePage))
 routes.post("/pages/removePage", auth, handle(removePage))
-routes.post("/pages/getPages", handle(getPages))
+routes.post("/pages/getPages", auth, handle(getPages))
 
+// assets
+routes.post('/assets/updateFile', auth, handle(updateFile))
+routes.post('/assets/removeFile', auth, handle(removeFile))
+routes.post('/assets/getFile', auth, handle(getFile))
+
+routes.post('/assets/uploadFile', auth, (req, res) => {
+  const siteId = params.siteId
+
+    if(!existsSync('./data/' + siteId + 'assets')) {
+        mkdirSync('./data/' + siteId + 'assets', {recursive: true})
+    }
+    // TODO: "implement File upload"
+
+    res.send({
+      message: 'File uploaded syccessfully!',
+      data: {
+        // ...
+      }
+    })
+})
+
+// Download
+routes.get('/files/:fileId', (req, res) => {
+  // send file
+
+  res.send('file content')
+})
