@@ -1,7 +1,9 @@
 import { Router } from "express";
-import { login, logout, register } from "./routes/auth.js";
+import {readdir, stat} from 'fs/promises'
+import { getUser, login, logout, register } from "./api/auth.js";
 import { connect } from "@ulibs/db";
 import jwt from "jsonwebtoken";
+import { createPage, getPages, removePage, updatePage } from "./api/pages.js";
 
 async function auth(req, res, next) {
   try {
@@ -74,7 +76,7 @@ function handle(cb) {
   };
 }
 
-export const routes = Router();
+const routes = Router();
 
 function test(params) {
     console.log(params)
@@ -85,26 +87,49 @@ function test(params) {
     }
 }
 
+
+// async function addFolderRoutes(folder = './api') {
+//   const files = await readdir(folder)
+//   for(let file of files) {
+//     const stats = await stat(folder + '/' + file)
+//     if(stats.mode === 16877) {
+//       addFolderRoutes(folder + '/' + file)
+//     } else {
+//       const module = await import(folder +'/' + file)
+//       Object.keys(module).forEach(fn => {
+//         const route = folder.substring(1) + '/' + file.replace('.js', '') + '/' + fn
+//         console.log('add route: ', route)
+//         routes.get(route, handle(module[fn]))
+//       })
+//     }
+//   }
+// }
+
+// await addFolderRoutes('./api')
+
+console.log('export routes', routes)
+export {routes}
 // auth
-routes.get("/auth/login", handle(login));
-routes.get("/auth/logout", handle(logout));
-routes.get("/auth/register", handle(register));
+routes.post("/auth/login", handle(login));
+routes.post("/auth/logout", auth, handle(logout));
+routes.post("/auth/register", handle(register));
+routes.post("/auth/getUser", auth, handle(getUser));
 
 // content
-routes.get("/content/createTable", handle(createTable))
-routes.get("/content/getTables", handle(getTables))
-routes.get("/content/updateTable", handle(updateTable))
-routes.get("/content/removeTable", handle(removeTable))
+// routes.get("/content/createTable", handle(createTable))
+// routes.get("/content/getTables", handle(getTables))
+// routes.get("/content/updateTable", handle(updateTable))
+// routes.get("/content/removeTable", handle(removeTable))
 
-// data
-routes.get("/data/insertData", handle(insertData))
-routes.get("/data/editData", handle(editData))
-routes.get("/data/updateData", handle(updateData))
-routes.get("/data/removeData", handle(removeData))
+// // data
+// routes.get("/data/insertData", handle(insertData))
+// routes.get("/data/editData", handle(editData))
+// routes.get("/data/updateData", handle(updateData))
+// routes.get("/data/removeData", handle(removeData))
 
 // pages
-routes.get("/pages/createPage", handle(createPage))
-routes.get("/pages/updatePage", handle(updatePage))
-routes.get("/pages/removePage", handle(removePage))
-routes.get("/pages/getPages", handle(getPages))
+routes.post("/pages/createPage", auth, handle(createPage))
+routes.post("/pages/updatePage", auth, handle(updatePage))
+routes.post("/pages/removePage", auth, handle(removePage))
+routes.post("/pages/getPages", handle(getPages))
 
