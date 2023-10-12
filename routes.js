@@ -103,35 +103,35 @@ const routes = Router();
 console.log('export routes', routes)
 export {routes}
 // auth
-routes.post("/auth/login", handle(login));
-routes.post("/auth/logout", auth, handle(logout));
-routes.post("/auth/register", handle(register));
-routes.post("/auth/getUser", auth, handle(getUser));
+routes.post("/:siteId/auth/login", handle(login));
+routes.post("/:siteId/auth/logout", auth, handle(logout));
+routes.post("/:siteId/auth/register", handle(register));
+routes.post("/:siteId/auth/getUser", auth, handle(getUser));
 
 // content
-routes.get("/content/createTable", auth, handle(createTable))
-routes.get("/content/getTables", auth, handle(getTables))
-routes.get("/content/updateTable", auth, handle(updateTable))
-routes.get("/content/removeTable", auth, handle(removeTable))
+routes.post("/:siteId/content/createTable", auth, handle(createTable))
+routes.post("/:siteId/content/getTables", auth, handle(getTables))
+routes.post("/:siteId/content/updateTable", auth, handle(updateTable))
+routes.post("/:siteId/content/removeTable", auth, handle(removeTable))
 
 // data
-routes.get("/data/insertData", auth, handle(insertData))
-routes.get("/data/getData", auth, handle(getData))
-routes.get("/data/updateData", auth, handle(updateData))
-routes.get("/data/removeData", auth, handle(removeData))
+routes.post("/:siteId/data/insertData", auth, handle(insertData))
+routes.post("/:siteId/data/getData", auth, handle(getData))
+routes.post("/:siteId/data/updateData", auth, handle(updateData))
+routes.post("/:siteId/data/removeData", auth, handle(removeData))
 
 // pages
-routes.post("/pages/createPage", auth, handle(createPage))
-routes.post("/pages/updatePage", auth, handle(updatePage))
-routes.post("/pages/removePage", auth, handle(removePage))
-routes.post("/pages/getPages", auth, handle(getPages))
+routes.post("/:siteId/pages/createPage", auth, handle(createPage))
+routes.post("/:siteId/pages/updatePage", auth, handle(updatePage))
+routes.post("/:siteId/pages/removePage", auth, handle(removePage))
+routes.post("/:siteId/pages/getPages", auth, handle(getPages))
 
 // assets
-routes.post('/assets/updateFile', auth, handle(updateFile))
-routes.post('/assets/removeFile', auth, handle(removeFile))
-routes.post('/assets/getFile', auth, handle(getFile))
+routes.post('/:siteId/assets/updateFile', auth, handle(updateFile))
+routes.post('/:siteId/assets/removeFile', auth, handle(removeFile))
+routes.post('/:siteId/assets/getFile', auth, handle(getFile))
 
-routes.post('/assets/uploadFile', auth, (req, res) => {
+routes.post('/:siteId/assets/uploadFile', auth, (req, res) => {
   const siteId = params.siteId
 
     if(!existsSync('./data/' + siteId + 'assets')) {
@@ -148,7 +148,7 @@ routes.post('/assets/uploadFile', auth, (req, res) => {
 })
 
 // Download
-routes.get('/files/:fileId', (req, res) => {
+routes.get('/:siteId/files/:fileId', (req, res) => {
   // send file
 
   res.send('file content')
