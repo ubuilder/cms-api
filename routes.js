@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {readdir, stat} from 'fs/promises'
+import { existsSync, mkdirSync} from 'fs'
 import { getUser, login, logout, register } from "./api/auth.js";
 import { connect } from "@ulibs/db";
 import jwt from "jsonwebtoken";
@@ -49,6 +50,10 @@ async function getHandler(req, cb) {
 
   const user = req.user ?? null;
 
+
+	if(!existsSync(`./data/${params.siteId}`)) {
+		mkdirSync(`./data/${params.siteId}`, {recursive: true})
+	}
   const db = connect({ filename: `./data/${params.siteId}/db.json` }).getModel;
 
   try {
@@ -72,10 +77,10 @@ async function getHandler(req, cb) {
 
 function handle(cb) {
   return async (req, res) => {
-    const { status, headers = {}, ...body } = await getHandler(req, cb);
+    const { status, message, headers = {}, data } = await getHandler(req, cb);
 
     // res.writeHead(200, undefined, headers)
-    res.send(body);
+    res.send({status, message, data});
   };
 }
 
