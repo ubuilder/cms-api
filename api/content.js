@@ -5,8 +5,6 @@ export async function createTable({body, db}) {
     let slug = body.slug ?? slugify(body.name)
     const fields = body.fields ?? []
     const icon = body.icon ?? []
-
-
      
     if(!name) throw new Error("400: Name is required")    
 

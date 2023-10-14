@@ -1,5 +1,6 @@
 import { Router } from "express";
 import {readdir, stat} from 'fs/promises'
+import {mkdirSync, existsSync} from 'fs'
 import { getUser, login, logout, register } from "./api/auth.js";
 import { connect } from "@ulibs/db";
 import jwt from "jsonwebtoken";
@@ -42,13 +43,20 @@ async function auth(req, res, next) {
 }
 
 async function getHandler(req, cb) {
+  console.log(req)
   const body = req.body;
+
   const params = req.params;
   const headers = req.headers;
   const query = req.query;
 
+  console.log({params})
+
   const user = req.user ?? null;
 
+  if(!existsSync(`./data/${params.siteId}`)) {
+    mkdirSync(`./data/${params.siteId}`, {recursive: true})
+  }
   const db = connect({ filename: `./data/${params.siteId}/db.json` }).getModel;
 
   try {
@@ -103,28 +111,28 @@ const routes = Router();
 console.log('export routes', routes)
 export {routes}
 // auth
-routes.post("/auth/login", handle(login));
-routes.post("/auth/logout", auth, handle(logout));
-routes.post("/auth/register", handle(register));
-routes.post("/auth/getUser", auth, handle(getUser));
+routes.post("/:siteId/auth/login", handle(login));
+routes.post("/:siteId/auth/logout", auth, handle(logout));
+routes.post("/:siteId/auth/register", handle(register));
+routes.post("/:siteId/auth/getUser", auth, handle(getUser));
 
 // content
-routes.get("/content/createTable", auth, handle(createTable))
-routes.get("/content/getTables", auth, handle(getTables))
-routes.get("/content/updateTable", auth, handle(updateTable))
-routes.get("/content/removeTable", auth, handle(removeTable))
+routes.post("/:siteId/content/createTable", auth, handle(createTable))
+routes.post("/:siteId/content/getTables", auth, handle(getTables))
+routes.post("/:siteId/content/updateTable", auth, handle(updateTable))
+routes.post("/:siteId/content/removeTable", auth, handle(removeTable))
 
 // data
-routes.get("/data/insertData", auth, handle(insertData))
-routes.get("/data/getData", auth, handle(getData))
-routes.get("/data/updateData", auth, handle(updateData))
-routes.get("/data/removeData", auth, handle(removeData))
+routes.post("/:siteId/data/insertData", auth, handle(insertData))
+routes.post("/:siteId/data/getData", auth, handle(getData))
+routes.post("/:siteId/data/updateData", auth, handle(updateData))
+routes.post("/:siteId/data/removeData", auth, handle(removeData))
 
 // pages
-routes.post("/pages/createPage", auth, handle(createPage))
-routes.post("/pages/updatePage", auth, handle(updatePage))
-routes.post("/pages/removePage", auth, handle(removePage))
-routes.post("/pages/getPages", auth, handle(getPages))
+routes.post("/:siteId/pages/createPage", auth, handle(createPage))
+routes.post("/:siteId/pages/updatePage", auth, handle(updatePage))
+routes.post("/:siteId/pages/removePage", auth, handle(removePage))
+routes.post("/:siteId/pages/getPages", auth, handle(getPages))
 
 // assets
 routes.post('/assets/updateFile', auth, handle(updateFile))
