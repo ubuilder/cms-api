@@ -1,6 +1,6 @@
 import { Router } from "express";
 import {readdir, stat} from 'fs/promises'
-import {mkdirSync, existsSync} from 'fs'
+import { existsSync, mkdirSync} from 'fs'
 import { getUser, login, logout, register } from "./api/auth.js";
 import { connect } from "@ulibs/db";
 import jwt from "jsonwebtoken";
@@ -54,9 +54,10 @@ async function getHandler(req, cb) {
 
   const user = req.user ?? null;
 
-  if(!existsSync(`./data/${params.siteId}`)) {
-    mkdirSync(`./data/${params.siteId}`, {recursive: true})
-  }
+
+	if(!existsSync(`./data/${params.siteId}`)) {
+		mkdirSync(`./data/${params.siteId}`, {recursive: true})
+	}
   const db = connect({ filename: `./data/${params.siteId}/db.json` }).getModel;
 
   try {
@@ -80,10 +81,10 @@ async function getHandler(req, cb) {
 
 function handle(cb) {
   return async (req, res) => {
-    const { status, headers = {}, ...body } = await getHandler(req, cb);
+    const { status, message, headers = {}, data } = await getHandler(req, cb);
 
     // res.writeHead(200, undefined, headers)
-    res.send(body);
+    res.send({status, message, data});
   };
 }
 
@@ -135,11 +136,11 @@ routes.post("/:siteId/pages/removePage", auth, handle(removePage))
 routes.post("/:siteId/pages/getPages", auth, handle(getPages))
 
 // assets
-routes.post('/assets/updateFile', auth, handle(updateFile))
-routes.post('/assets/removeFile', auth, handle(removeFile))
-routes.post('/assets/getFile', auth, handle(getFile))
+routes.post('/:siteId/assets/updateFile', auth, handle(updateFile))
+routes.post('/:siteId/assets/removeFile', auth, handle(removeFile))
+routes.post('/:siteId/assets/getFile', auth, handle(getFile))
 
-routes.post('/assets/uploadFile', auth, (req, res) => {
+routes.post('/:siteId/assets/uploadFile', auth, (req, res) => {
   const siteId = params.siteId
 
     if(!existsSync('./data/' + siteId + 'assets')) {
@@ -156,7 +157,7 @@ routes.post('/assets/uploadFile', auth, (req, res) => {
 })
 
 // Download
-routes.get('/files/:fileId', (req, res) => {
+routes.get('/:siteId/files/:fileId', (req, res) => {
   // send file
 
   res.send('file content')
