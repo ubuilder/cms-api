@@ -109,8 +109,7 @@ const routes = Router();
 
 // await addFolderRoutes('./api')
 
-console.log('export routes', routes)
-export {routes}
+
 // auth
 routes.post("/:siteId/auth/login", handle(login));
 routes.post("/:siteId/auth/logout", auth, handle(logout));
@@ -162,3 +161,6 @@ routes.get('/:siteId/files/:fileId', (req, res) => {
 
   res.send('file content')
 })
+
+// console.log('export routes', routes)
+export {routes}

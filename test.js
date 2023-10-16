@@ -1,174 +1,111 @@
-import { getUser, login, logout, register } from "./api/auth.js";
+import test from "ava";
+import fs from "fs";
 import { connect } from "@ulibs/db";
-import { createPage, getPages, removePage, updatePage } from "./api/pages.js";
-import { createTable, getTables, removeTable } from "./api/content.js";
-import { getData, insertData, removeData, updateData } from "./api/data.js";
 
-const db = connect({ filename: "./test.json" }).getModel;
+const db = connect({ filename: `./data/test/db.json` }).getModel;
+const DB_FILE_PATH = "./data/test/db.json";
 
-// logout({db})
-const {
-  data: { user },
-} = await login({ db, body: { username: "hadi", password: "abc" } });
-
-const { data: post } = await insertData({
-  db,
-  user,
-  body: {
-    table: "posts",
-    data: {
-      title: "First post",
-    },
-  },
+//clear the data file
+test.beforeEach(() => {
+  if (fs.existsSync(DB_FILE_PATH)) {
+    fs.writeFileSync(DB_FILE_PATH, "");
+  }
 });
 
-// wluQSQbC
-// const {data: author} = await insertData({
-//     db,
-//     user,
-//     body: {
-//         table: 'users',
-//         data: {
-//             name: 'Hadi Ahmadi',
-//             posts: ['wluQSQbC']
-//         }
-//     }
-// })
+//table tests=====================================================================
+import {
+  validateTableCreate,
+  validateTableUpdate,
+} from "./validators/TableValidator.js";
 
-// await 
+test("Create operation - Valid table data", async (t) => {
+  const tableData = {
+    name: "Table1",
+    slug: "table1",
+    fields: [
+      { name: "Field1", type: "text" },
+      { name: "Field2", type: "text" },
+    ],
+  };
 
-// await updateData({
-//   db,
-//   user,
-//   body: {
-//     table: "posts",
-//     id: "wluQSQbC",
-//     data: {
-//     //   title: 'Update title',
-//       author_id: null,
-//     },
-//   },
-// });
+  const result = await validateTableCreate(tableData, db);
+  t.true(result);
+});
+//required name
+test("required name", async (t) => {
+  const tableData = {
+    slug: "table3",
+    fields: [
+      { name: "Field1", type: "text" },
+      { name: "Field2", type: "text" },
+    ],
+  };
 
-removeTable({
-    db,
-    body: {
-        id: 'PJRJpdLF'
-    }
-})
-// const data = await getData({
-//     db,
-//     body: {
-//         table: 'posts',
-//         where: {id: 30}
-//     }
-// })
+  await t.throwsAsync(
+    async () => {
+      await validateTableCreate(tableData, db);
+    },
+    { instanceOf: Error, message: "Name is required" }
+  );
+});
+//unique name
+test("unique name", async (t) => {
+  await db("u-tables").insert({ name: "name" });
 
-// console.log(data)
+  const tableData = {
+    name: "name",
+    slug: "slug",
+    fields: [
+      { name: "Field1", type: "text" },
+      { name: "Field2", type: "text" },
+    ],
+  };
 
-// await removeData({
-//     user, 
-//     db, 
-//     body: {
-//         table: 'posts',
-//         id: 'wluQSQbC'
-//     }
-// })
-// const {data: res} = await createTable({db, body: {
-//     name: 'users',
-//     icon: 'users',
-//     fields: [{
-//         name: 'name',
-//         type: 'plain_text',
-//         required: false,
-//     }, {
-//         name: 'posts',
-//         type: 'relation',
-//         multiple: true,
-//         required: true
-//     }]
-// }})
+  await t.throwsAsync(
+    async () => {
+      await validateTableCreate(tableData, db);
+    },
+    { instanceOf: Error, message: "Name must be unique" }
+  );
+});
+//unique slug
+test("unique slug", async (t) => {
+  await db("u-tables").insert({ slug: "table2" });
 
-// const {data: res2} = await createTable({db, body: {
-//     name: 'posts',
-//     icon: 'books',
-//     fields: [{
-//         name: 'title',
-//         type: 'plain_text',
-//         required: false,
-//     }, {
-//         name: 'author',
-//         type: 'relation',
-//         multiple: false,
-//         required: true
-//     }]
-// }})
-// console.log(res)
+  const tableData = {
+    name: "table1",
+    slug: "table2",
+    fields: [
+      { name: "Field1", type: "text" },
+      { name: "Field2", type: "text" },
+    ],
+  };
 
-// const {data: tables} = await getTables({db, body: {
+  await t.throwsAsync(
+    async () => {
+      await validateTableCreate(tableData, db);
+    },
+    { instanceOf: Error, message: "Slug must be unique" }
+  );
+});
 
-// }})
+//unique field names
+test("unique field names", async (t) => {
 
-// console.log(tables)
+  const tableData = {
+    name: "table1",
+    slug: "table2",
+    fields: [
+      { name: "Field1", type: "text" },
+      { name: "Field1", type: "text" },
+    ],
+  };
 
-// const result = await register({db, body: {
-//     username: "hadi",
-//     name: "hadigak",
-//     email: "hadi@gmail.com",
-//     password: "abc"
-// }})
-
-// console.log("registered: ", result)
-
-// console.log(
-// await login({db, body:{
-//     username: "hadi",
-//     password: "abc"
-// }})
-// )
-
-// console.log(
-//     await createPage({db, body: {
-//         title: 'abc',
-//         slug: '/test'
-//     }})
-// )
-
-// KTBUXHmH
-// console.log(
-//     await updatePage({db, body: {
-//         id: 'KTBUXHmH',
-//         data: {
-
-//         load: [
-//             {
-//                 name: 'Blogs',
-//                 table: 'blogs',
-//                 multiple: true,
-//                 filters: []
-//             }
-//         ]
-//     }
-
-//     }})
-// )
-
-// console.log(
-//     await getPages({db, body: {
-
-//     }})
-// )
-
-// const loginResult = await login({db, body: {username: 'hadi', password: 'abc'}});
-
-// const token = loginResult.data.token;
-
-// const user = await getUser({db, body: {}, user: loginResult.data.user})
-
-// console.log(user.data)
-
-// console.log(
-//     await removePage({db, body: {
-//         id: 'KTBUXHmH'
-//     }})
-// )
+  await t.throwsAsync(
+    async () => {
+      await validateTableCreate(tableData, db);
+    },
+    { instanceOf: Error, message: "Field names must be unique" }
+  );
+});
+//====================================================================================
