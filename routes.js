@@ -56,11 +56,15 @@ async function auth(req, res, next) {
 }
 
 async function getHandler(req, cb) {
+  console.log(req)
   const body = req.body;
+
   const params = req.params;
   const headers = req.headers;
   const query = req.query;
   const db = req.db;
+
+  console.log({params})
 
   const user = req.user ?? null;
 

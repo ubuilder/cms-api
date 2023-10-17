@@ -47,6 +47,7 @@ export function logout({ db }) {
 }
 
 export async function register({ db, body }) {
+  console.log('register', body)
   const user = {
     username: body.username,
     name: body.name,
