@@ -10,6 +10,7 @@ import { getData, insertData, removeData, updateData } from "./api/data.js";
 import { getFiles, removeFile, updateFile } from "./api/assets.js";
 import multer from "multer";
 import path from 'path'
+import { createComponent, getComponents, removeComponent, updateComponent } from "./api/components.js";
 
 async function auth(req, res, next) {
   try {
@@ -137,6 +138,13 @@ routes.post("/:siteId/pages/createPage", auth, handle(createPage))
 routes.post("/:siteId/pages/updatePage", auth, handle(updatePage))
 routes.post("/:siteId/pages/removePage", auth, handle(removePage))
 routes.post("/:siteId/pages/getPages", auth, handle(getPages))
+
+
+// components
+routes.post("/:siteId/components/createComponent", auth, handle(createComponent))
+routes.post("/:siteId/components/updateComponent", auth, handle(updateComponent))
+routes.post("/:siteId/components/removeComponent", auth, handle(removeComponent))
+routes.post("/:siteId/components/getComponents", auth, handle(getComponents))
 
 // assets
 routes.post('/:siteId/assets/updateFile', auth, handle(updateFile))
