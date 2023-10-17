@@ -1,40 +1,36 @@
-import {existsSync, mkdirSync} from 'fs'
-export async function uploadFile({body, params, db, user}) {
-    
-    // upload the file....
-    
-    throw new Error('501: (Not implemented yet!)')
-    return {
-        status: 200,
-        message: 'Success!',
-        data: {}
-    }   
-}
-
 export async function updateFile({body, db, user}) {
-    throw new Error('501: (Not implemented yet!)')
+    if(!user) throw new Error('401: You are not authorized');
+
+
+    // should not change type
+    const res = await db('u-assets').update(body.id, {...body.data, type: undefined})
+    
     return {
         status: 200,
         message: 'Success!',
-        data: {}
+        data: res
     }   
 }
 
 export async function removeFile({body, db, user}) {
-    throw new Error('501: (Not implemented yet!)')
+    if(!user) throw new Error('401: You are not authorized');
+
+    const res = await db('u-assets').remove(body.id)
+ 
     return {
         status: 200,
         message: 'Success!',
-        data: {}
+        data: res
     }
 }
 
-export async function getFile({body, db, user}) {
-    throw new Error('501: (Not implemented yet!)')
+export async function getFiles({body, db, user}) {
+    const files = await db('u-assets').query({where: body.where, perPage: body.perPage, page: body.page});
+
     return {
         status: 200,
         message: 'Success!',
-        data: {}
+        data: files
     }   
 }
 
