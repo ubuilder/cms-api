@@ -1,3 +1,5 @@
+import {validatePageCreate, validatePageUpdate} from "../validators/PageValidator.js"
+
 export async function createPage({body, db}) {
     const title = body.title
     let slug = body.slug
@@ -8,9 +10,7 @@ export async function createPage({body, db}) {
     const dir = body.dir ?? 'ltr';
     const description = body.description ?? ''
        
-     
-    if(!title) throw new Error("400: Title is required")    
-    if(!slug) throw new Error("400: Slug is required")    
+    await validatePageCreate(body, db)
 
     if(slug.startsWith('/')) slug = slug.slice(1);
 
@@ -38,6 +38,8 @@ export async function createPage({body, db}) {
 export async function updatePage({body, db}) {
 
     await db('u-pages').update(body.id, body.data)
+
+    await validatePageUpdate(body.data, db, body.id)
     
     return {
         status: 200,

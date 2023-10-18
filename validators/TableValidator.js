@@ -3,7 +3,7 @@ export async function validateTableCreate(data, db) {
   const {name, slug, fields} = data
 
   if (!name) {
-    throw new Error("Name is required");
+    throw new Error("400:name: this field is required");
   }
 
   const existingName = await db("u-tables").get({where: {name}});
@@ -11,18 +11,18 @@ export async function validateTableCreate(data, db) {
   const existingSlug = await db("u-tables").get({where: {slug}});
 
   if (existingName) {
-    throw new Error("Name must be unique");
+    throw new Error("400:name: this field must be unique");
   }
 
   if (existingSlug) {
-    throw new Error("Slug must be unique");
+    throw new Error("400:slug: this field must be unique");
   }
 
   const fieldNames = fields.map((field) => field.name);
   const uniqueFieldNames = new Set(fieldNames);
 
   if (fieldNames.length !== uniqueFieldNames.size) {
-    throw new Error("Field names must be unique");
+    throw new Error("400:field_name: this field must be unique");
   }
 
   // // Function to check if a value is a number
@@ -48,23 +48,23 @@ export async function validateTableCreate(data, db) {
 export async function validateTableUpdate(data, db, id) {
   const {name, slug, fields} = data
   
-  const existingName = await db("u-tables").query({where: { name, id: { operator: "!=", value: id }}}).get();
+  const existingName = await db("u-tables").get({where: { name, id: { operator: "!=", value: id }}})
 
-  const existingSlug = await db("u-tables").query({where: { slug, id: { operator: "!=", value: id }}}).get();
+  const existingSlug = await db("u-tables").get({where: { slug, id: { operator: "!=", value: id }}})
 
   if (existingName) {
-    throw new Error("Name must be unique");
+    throw new Error("400:name: this field must be unique");
   }
 
   if (existingSlug) {
-    throw new Error("Slug must be unique");
+    throw new Error("400:slug: this field must be unique");
   }
 
   const fieldNames = fields.map((field) => field.name);
   const uniqueFieldNames = new Set(fieldNames);
 
   if (fieldNames.length !== uniqueFieldNames.size) {
-    throw new Error("Field names must be unique");
+    throw new Error("400:field_name: this field must be unique");
   }
 
   return true;
