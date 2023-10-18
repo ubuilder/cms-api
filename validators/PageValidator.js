@@ -29,7 +29,7 @@ export async function validatePageCreate(data, db) {
 export async function validatePageUpdate(data, db, id) {
   const { title, slug, load, actions, slot, dir, description } = data;
 
-  const existingSlug = await db("u-tables").get({
+  const existingSlug = await db("u-pages").get({
     where: { slug, id: { operator: "!=", value: id } },
   });
 
@@ -37,32 +37,32 @@ export async function validatePageUpdate(data, db, id) {
     throw new Error("400:slug: this field must be unique");
   }
 
-  if(typeof title !== "string") {
+  if(typeof title !== "string" && title) {
     throw new Error("400:title: this field must be string");
   }
 
-  if(typeof slug !== "string") {
+  if(typeof slug !== "string" && slug) {
     throw new Error("400:slug: this field must be string");
   }
 
-  if(typeof description !== "string") {
+  if(typeof description !== "string" && description) {
     throw new Error("400:description: this field must be string");
   }
 
-  if(dir !== "ltr" && dir !== "rtl") {
+  if(dir !== "ltr" && dir !== "rtl" && dir) {
     throw new Error("400:dir: this field must be ltr or rtl");
   }
 
-  if(!Array.isArray(load)){
+  if(!Array.isArray(load) && load){
     throw new Error("400:load: this field must be array");
   }
 
-  if(!Array.isArray(slot)){
+  if(!Array.isArray(slot) && slot){
     throw new Error("400:slot: this field must be array");
   }
 
-  if(!Array.isArray(actions)){
-    throw new Error("400:action: this field must be array");
+  if(!Array.isArray(actions) && actions){
+    throw new Error("400:actions: this field must be array");
   }
 
   return true;

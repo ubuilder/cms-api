@@ -46,6 +46,54 @@ async function preparePayload({
       }
     }
 
+    // string validation
+    if (body[field.name] && (field.type === "plain_text" || field.type === "rich_text")) {
+      if (typeof (body[field.name]) !== "string") {
+        throw new Error(`400: the "${field.name}" field should be a string`);
+      } else {
+        body[field.name] = +body[field.name];
+      }
+
+      if (typeof field.min !== undefined && field.min > body[field.name]) {
+        throw new Error(
+          `400: the "${field.name}" field should be larger than ${field.min}`
+        );
+      }
+      if (typeof field.max !== undefined && field.max < body[field.name]) {
+        throw new Error(
+          `400: the "${field.name}" field should be smaller than ${field.min}`
+        );
+      }
+    }
+
+    // string validation
+    if (body[field.name] && field.type === "switch") {
+      if (typeof (body[field.name]) !== "boolean") {
+        throw new Error(`400: the "${field.name}" field should be boolean`);
+      } else {
+        body[field.name] = +body[field.name];
+      }
+    }
+
+    // date validation
+    if (body[field.name] && field.type === "date_time") {
+      if (typeof (body[field.name]) !== "date") {
+        throw new Error(`400: the "${field.name}" field should be in date format`);
+      } else {
+        body[field.name] = +body[field.name];
+      }
+    }
+
+    // select validation
+    if (body[field.name] && field.type === "select") {
+      let values = field.options.split(",").trim();
+      for(let value of values ?? []){
+        if (typeof (body[field.name]) !== value) {
+          throw new Error(`400: the "${field.name}" field should be in select options`);
+        }
+      }
+    }
+
     console.log(body[field.name]);
     // relation type
     if (

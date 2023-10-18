@@ -321,6 +321,8 @@ test("unique page slug", async (t) => {
 
 //update page 
 test("Update operation - Valid page data", async (t) => {
+  let page = await db("u-pages").insert({title: "title", slug: "slug"})
+
   const pageData = {
     title: "home",
     slug: "page-slug",
@@ -331,7 +333,158 @@ test("Update operation - Valid page data", async (t) => {
     description: "description"
   };
 
-  const result = await validatePageUpdate(pageData, db);
+  const result = await validatePageUpdate(pageData, db, page[0]);
   t.true(result);
 });
 
+//update unique slug 
+test("update unique page slug", async (t) => {
+  await db("u-pages").insert({slug: "old-slug"})
+  let newpage = await db("u-pages").insert({slug: "slug"})
+
+  const pageData = {
+    title: "title",
+    slug: "old-slug"
+  };
+
+  await t.throwsAsync(
+    async () => {
+      await validatePageUpdate(pageData, db, newpage[0]);
+    },
+    { instanceOf: Error, message: "400:slug: this field must be unique" }
+  );
+});
+//update string title
+test("update invalid page title", async (t) => {
+
+  let newpage = await db("u-pages").insert({slug: "slugsldfjka", title: "title"})
+
+  const pageData = {
+    title: 343343,
+    slug: "sluglafsjljksda"
+  };
+
+  await t.throwsAsync(
+    async () => {
+      await validatePageUpdate(pageData, db, newpage[0]);
+    },
+    { instanceOf: Error, message: "400:title: this field must be string" }
+  );
+});
+//update string slug
+test("update invalid page slug", async (t) => {
+
+  let newpage = await db("u-pages").insert({title: "title", slug: "slug"})
+
+  const pageData = {
+    title: "slug",
+    slug: 343343
+  };
+
+  await t.throwsAsync(
+    async () => {
+      await validatePageUpdate(pageData, db, newpage[0]);
+    },
+    { instanceOf: Error, message: "400:slug: this field must be string" }
+  );
+});
+//update string description
+test("update invalid page description", async (t) => {
+
+  let newpage = await db("u-pages").insert({description: "slslsl"})
+
+  const pageData = {
+    title: "slug",
+    slug: "lskjl",
+    description: 2423
+  };
+
+  await t.throwsAsync(
+    async () => {
+      await validatePageUpdate(pageData, db, newpage[0]);
+    },
+    { instanceOf: Error, message: "400:description: this field must be string" }
+  );
+});
+//update invalid dir
+test("update invalid page direction", async (t) => {
+
+  let newpage = await db("u-pages").insert({dir: "rtl"})
+
+  const pageData = {
+    title: "slug",
+    slug: "lskjl",
+    description: "slkjdlks",
+    dir: "llr"
+  };
+
+  await t.throwsAsync(
+    async () => {
+      await validatePageUpdate(pageData, db, newpage[0]);
+    },
+    { instanceOf: Error, message: "400:dir: this field must be ltr or rtl" }
+  );
+});
+//update invalid load
+test("update invalid page load", async (t) => {
+
+  let newpage = await db("u-pages").insert({load: [{table: "ssss"}]})
+
+  const pageData = {
+    title: "slug",
+    slug: "lskjl",
+    description: "slkjdlks",
+    dir: "ltr",
+    load: 423
+  };
+
+  await t.throwsAsync(
+    async () => {
+      await validatePageUpdate(pageData, db, newpage[0]);
+    },
+    { instanceOf: Error, message: "400:load: this field must be array"}
+  );
+});
+//update invalid slot
+test("update invalid page slots", async (t) => {
+
+  let newpage = await db("u-pages").insert({slot: [{props: {name: "lsjkljksdf"}}]})
+
+  const pageData = {
+    title: "slug",
+    slug: "lskjl",
+    description: "slkjdlks",
+    dir: "ltr",
+    load: [{table: "lllll"}],
+    slot: 23234
+  };
+
+  await t.throwsAsync(
+    async () => {
+      await validatePageUpdate(pageData, db, newpage[0]);
+    },
+    { instanceOf: Error, message: "400:slot: this field must be array"}
+  );
+});
+//update invalid actions
+test("update invalid page actions", async (t) => {
+
+  let newpage = await db("u-pages").insert({actions: [{form: "submit"}]})
+
+  const pageData = {
+    title: "slug",
+    slug: "lskjl",
+    description: "slkjdlks",
+    dir: "ltr",
+    load: [{table: "lllll"}],
+    slot: [{props: {name: "lskjsdlk"}}],
+    actions: 4334
+  };
+
+  await t.throwsAsync(
+    async () => {
+      await validatePageUpdate(pageData, db, newpage[0]);
+    },
+    { instanceOf: Error, message: "400:actions: this field must be array"}
+  );
+});
