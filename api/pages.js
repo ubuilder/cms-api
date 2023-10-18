@@ -8,6 +8,10 @@ export async function createPage({body, db}) {
     const dir = body.dir ?? 'ltr';
     const description = body.description ?? ''
        
+    const head = body.head ?? `
+    <title>{{page.title}}</title>
+    <meta name="description" content={{page.description}}/>
+    `
      
     if(!title) throw new Error("400: Title is required")    
     if(!slug) throw new Error("400: Slug is required")    
@@ -20,6 +24,7 @@ export async function createPage({body, db}) {
         load,
         actions,
         slot,
+        head,
         dir,
         description
     }
