@@ -34,6 +34,7 @@ export async function createPage({body, db}) {
     const actions = body.actions ?? []
     const slot = body.slot ?? []
     const dir = body.dir ?? 'ltr';
+    const head = body.head ?? `<meta name="description" content="{{page.description}}"/><title>{{page.title}}</title>`
     const description = body.description ?? ''
        
     await validatePageCreate(body, db)
