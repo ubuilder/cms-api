@@ -86,10 +86,10 @@ async function preparePayload({
 
     // select validation
     if (body[field.name] && field.type === "select") {
-      let values = field.options.split(",").trim();
-      for(let value of values ?? []){
+      let values = field.options.split(',').map(x => x.trim()) ?? []
+      for(let value of values){
         if (typeof (body[field.name]) !== value) {
-          throw new Error(`400: the "${field.name}" field should be in select options`);
+          throw new Error(`400: the "${field.name}" field must have select options`);
         }
       }
     }
