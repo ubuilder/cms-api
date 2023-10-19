@@ -1,3 +1,29 @@
+import postcss from "postcss";
+import tailwind from "tailwindcss";
+
+async function generateBaseCss() {
+    const tailwindConfig = {
+        darkMode: "class",
+      };
+    
+      const css = await postcss(
+        tailwind({
+          ...tailwindConfig,
+          content: {
+            files: [
+              { raw: '', extension: "html" },
+            ],
+          },
+        })
+      )
+        .process(`@tailwind base;`)
+        .then((res) => {
+          return res.css;
+        })
+      
+        return css
+}
+
 export async function createPage({body, db}) {
     const title = body.title
     let slug = body.slug
@@ -25,6 +51,7 @@ export async function createPage({body, db}) {
         actions,
         slot,
         head,
+        css: await generateBaseCss(),
         dir,
         description
     }
@@ -42,6 +69,7 @@ export async function createPage({body, db}) {
 
 export async function updatePage({body, db}) {
 
+    delete body.data['css'] // css is readonly
     await db('u-pages').update(body.id, body.data)
     
     return {
