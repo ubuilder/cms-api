@@ -14,10 +14,10 @@ export async function setSettings({db, body}) {
 }
 
 export async function getSettings({db}) {
-    const settings = await db('u-settings').get();
+    const settings = await db('u-settings').get() ?? {};
 
     return {
-        message: 'setting udpated successfully',
+        message: 'success',
         status: 200,
         data: settings
     }

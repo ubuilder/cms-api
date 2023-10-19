@@ -3,7 +3,8 @@ export async function updateFile({body, db, user}) {
 
 
     // should not change type
-    const res = await db('u-assets').update(body.id, {...body.data, type: undefined})
+    delete body.data['type']
+    const res = await db('u-assets').update(body.id, body.data)
     
     return {
         status: 200,

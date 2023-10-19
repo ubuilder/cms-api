@@ -20,6 +20,7 @@ export async function createPage({body, db}) {
         load,
         actions,
         slot,
+        head,
         dir,
         description
     }
