@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 
 export async function login({ body: { password, username }, db }) {
-    console.log('db', await db('u-users').query({}), {password, username})
   const user = await db("u-users").get({ where: { username } });
   
   if (!user) {
@@ -47,7 +46,6 @@ export function logout({ db }) {
 }
 
 export async function register({ db, body }) {
-  console.log('register', body)
   const user = {
     username: body.username,
     name: body.name,

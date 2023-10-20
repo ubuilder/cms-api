@@ -1,5 +1,6 @@
 import postcss from "postcss";
 import tailwind from "tailwindcss";
+import {writeFileSync, rmSync, readFileSync, existsSync, mkdirSync} from 'fs'
 
 async function generateCss(template) {
   const tailwindConfig = {
@@ -28,19 +29,29 @@ async function generateCss(template) {
 
 }
 
-export async function createComponent({ body, db }) {
+export async function createComponent({ body, db, params }) {
   const name = body.name;
 
   if (!name) throw new Error("400: name: Name is required");
+  
+  // validate tempalte should be string or undefined
+  
 
+  if(!existsSync(`./data/${params.siteId}/components`)) {
+    mkdirSync(`./data/${params.siteId}/components`)
+  }
+  
   const component = {
     name,
-    template: body.template ?? "",
+    // template: body.template ?? "",
     fields: body.fields ?? [],
     css: body.template ? await generateCss(body.template) : ''
   };
 
   const [id] = await db("u-components").insert(component);
+
+  writeFileSync(`./data/${params.siteId}/components/${id}.hbs`, body.template ?? '');
+
 
   component.id = id;
 
@@ -51,8 +62,16 @@ export async function createComponent({ body, db }) {
   };
 }
 
-export async function updateComponent({ body, db }) {
+export async function updateComponent({ body, db, params}) {
   body.data.css = await generateCss(body.data.template);
+
+  if(body.data.template) {
+    const path = `./data/${params.siteId}/components/${body.id}.hbs`
+  
+    writeFileSync(path, body.data.template);
+  }
+  
+  delete body.data['template']
 
   await db("u-components").update(body.id, body.data);
 
@@ -63,8 +82,11 @@ export async function updateComponent({ body, db }) {
   };
 }
 
-export async function removeComponent({ body, db }) {
+export async function removeComponent({ body, db, params }) {
   await db("u-components").remove(body.id);
+
+  const path = `./data/${params.siteId}/components/${body.id}.hbs`
+  rmSync(path);
 
   return {
     status: 200,
@@ -72,12 +94,17 @@ export async function removeComponent({ body, db }) {
   };
 }
 
-export async function getComponents({ body, db }) {
+export async function getComponents({ body, db, params }) {
   const data = await db("u-components").query({
     where: body.where,
     perPage: body.perPage,
     page: body.page,
   });
+
+  data.data.map(x => {
+    x.template = readFileSync(`./data/${params.siteId}/components/${x.id}.hbs`, 'utf-8')
+    return x
+  })
 
   return {
     status: 200,

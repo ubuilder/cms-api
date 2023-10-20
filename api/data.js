@@ -94,35 +94,26 @@ async function preparePayload({
       }
     }
 
-    console.log(body[field.name]);
     // relation type
     if (
       typeof body[field.name + "_id"] !== "undefined" &&
       field.type === "relation"
     ) {
-      console.log("relation: ", field);
       if (field.multiple) {
         // user.posts
         // update other table
         const otherTable = await db("u-tables").get({
           where: { slug: field.table },
         });
-        console.log(field, otherTable);
         const otherField = otherTable.fields.find(
           (x) => x.type === "relation" && x.name === field.field
         );
-        console.log(otherField, otherTable.fields);
 
         if (otherField) {
           // update other table
           if (mode === "insert") {
             afterInsert(async (id) => {
-              console.log(
-                "after insert: id: ",
-                id,
-                "body field name: ",
-                body[field.name]
-              );
+
               for (let otherId of body[field.name]) {
                 await db(otherTable.slug).update(otherId, {
                   [field.field + "_id"]: id, // id of new inserted item
@@ -130,15 +121,7 @@ async function preparePayload({
               }
             });
           } else {
-            console.log(
-              `[${mode} - ${id}] set `,
-              field.field + "_id",
-              "of ",
-              otherTable.slug,
-              " to " + id,
-              "where there ids are",
-              body[field.name]
-            );
+
             for (let otherId of body[field.name]) {
               await db(otherTable.slug).update(otherId, {
                 [field.field + "_id"]: id, // id of new inserted item
@@ -147,7 +130,7 @@ async function preparePayload({
           }
         } else {
           throw new Error(
-            "400: this relation field is not connected to other table 1.."
+            `400:${field.name}: this relation field is not connected to other table 1..`
           );
 
           // not connected
@@ -165,14 +148,12 @@ async function preparePayload({
             x.field === field.name
         );
 
-        console.log({ otherTable, otherField });
-
         if (otherField) {
           payload[field.name + "_id"] = body[field.name + "_id"];
         } else {
           // not connected
           throw new Error(
-            "400: this relation field is not connected to other table.."
+            `400:${field.name}: this relation field is not connected to other table..`
           );
         }
       }
@@ -181,12 +162,11 @@ async function preparePayload({
     }
   }
 
-  console.log("payload: ", payload, table);
   return payload;
 }
 
 export async function insertData({ body, db, user }) {
-  if (!body.table) throw new Error("400: Table is required!");
+  if (!body.table) throw new Error("400:table: Table is required!");
   if (!user) throw new Error("401: You don't have access!");
 
   const data = body.data;
@@ -203,7 +183,6 @@ export async function insertData({ body, db, user }) {
     table: body.table,
     afterInsert,
   });
-  console.log(payload);
 
   payload.created_by = user.id;
   payload.updated_by = null;
@@ -241,7 +220,6 @@ export async function updateData({ body, db, user }) {
   payload.updated_at = new Date().valueOf();
   payload.updated_by = user.id;
 
-  console.log({ payload, data });
   await db(body.table).update(body.id, { ...data, ...payload });
 
   return {
