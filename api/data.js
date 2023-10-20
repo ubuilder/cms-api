@@ -18,23 +18,23 @@ async function preparePayload({
       field.required &&
       !body[field.name]
     ) {
-      throw new Error(`400: the "data.${field.name}" is required`);
+      throw new Error(`400:${field.name}: this field is required`);
     }
 
     // number validation
     if (body[field.name] && field.type === "number") {
       if (isNaN(Number(body[field.name]))) {
-        throw new Error(`400: the "${field.name}" field should be a number`);
+        throw new Error(`400:${field.name}: this field should be a number`);
       } else {
         body[field.name] = +body[field.name];
       }
 
-      if (typeof field.min !== undefined && field.min > body[field.name]) {
+      if (typeof field.min !== 'undefined' && field.min > body[field.name]) {
         throw new Error(
           `400: the "${field.name}" field should be larger than ${field.min}`
         );
       }
-      if (typeof field.max !== undefined && field.max < body[field.name]) {
+      if (typeof field.max !== 'undefined' && field.max < body[field.name]) {
         throw new Error(
           `400: the "${field.name}" field should be smaller than ${field.min}`
         );
@@ -49,36 +49,34 @@ async function preparePayload({
     // string validation
     if (body[field.name] && (field.type === "plain_text" || field.type === "rich_text")) {
       if (typeof (body[field.name]) !== "string") {
-        throw new Error(`400: the "${field.name}" field should be a string`);
-      } else {
-        body[field.name] = +body[field.name];
+        throw new Error(`400:${field.name}: this field should be a string`);
       }
 
-      if (typeof field.min !== undefined && field.min > body[field.name]) {
+      if (typeof field.min !== 'undefined' && field.min > body[field.name].length) {
         throw new Error(
-          `400: the "${field.name}" field should be larger than ${field.min}`
+          `400:${field.name}: this field should be larger than ${field.minlength}.`
         );
       }
-      if (typeof field.max !== undefined && field.max < body[field.name]) {
+      if (typeof field.max !== 'undefined' && field.max < body[field.name].length) {
         throw new Error(
-          `400: the "${field.name}" field should be smaller than ${field.min}`
+          `400:${field.name}: this field should be smaller than ${field.minlength}.`
         );
       }
     }
 
-    // string validation
+    // switch validation
     if (body[field.name] && field.type === "switch") {
-      if (typeof (body[field.name]) !== "boolean") {
-        throw new Error(`400: the "${field.name}" field should be boolean`);
+      if (!['true', 'false', true, false, 1, 0].includes(body[field.name])) {
+        throw new Error(`400:${field.name}: this field should be boolean`);
       } else {
-        body[field.name] = +body[field.name];
+        body[field.name] = !!body[field.name];
       }
     }
 
     // date validation
     if (body[field.name] && field.type === "date_time") {
       if (typeof (body[field.name]) !== "date") {
-        throw new Error(`400: the "${field.name}" field should be in date format`);
+        throw new Error(`400:${field.name}: this field should be in date format`);
       } else {
         body[field.name] = +body[field.name];
       }
@@ -87,10 +85,8 @@ async function preparePayload({
     // select validation
     if (body[field.name] && field.type === "select") {
       let values = field.options.split(',').map(x => x.trim()) ?? []
-      for(let value of values){
-        if (typeof (body[field.name]) !== value) {
-          throw new Error(`400: the "${field.name}" field must have select options`);
-        }
+      if(!values.includes(body[field.name])){
+        throw new Error(`400:${field.name}: this field must be one of ${values.map(x => `"${x}"`).join(', ')}`);
       }
     }
 
@@ -190,6 +186,7 @@ export async function insertData({ body, db, user }) {
   payload.created_at = new Date().valueOf();
   payload.updated_at = new Date().valueOf();
 
+  console.log('insert', payload)
   const [id] = await db(body.table).insert(payload);
   data.id = id;
 
@@ -205,7 +202,7 @@ export async function insertData({ body, db, user }) {
 }
 
 export async function updateData({ body, db, user }) {
-  if (!body.table) throw new Error("400: Table is required!");
+  if (!body.table) throw new Error("400:table: this field is required!");
   if (!user) throw new Error("401: You don't have access!");
 
   const payload = await preparePayload({

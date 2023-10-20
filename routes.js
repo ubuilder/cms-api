@@ -4,7 +4,7 @@ import { existsSync, mkdirSync } from "fs";
 import { getUser, login, logout, register } from "./api/auth.js";
 import { connect, id } from "@ulibs/db";
 import jwt from "jsonwebtoken";
-import { createPage, getPages, removePage, updatePage } from "./api/pages.js";
+import { createPage, getPageCss, getPages, removePage, updatePage } from "./api/pages.js";
 import {
   createTable,
   getTables,
@@ -70,12 +70,15 @@ async function getHandler(req, cb) {
   } catch (err) {
     console.log(err.name, err.message);
     if (err.message.includes(":")) {
-      const [status,field,message] = err.message.split(":").map((x) => x.trim());     
+
+      const [status,...message] = err.message.split(":").map((x) => x.trim());     
+      console.log('message: ', message)
       return {
         status,
-        field,
-        message,
+        field: message.length === 2 ? message[0] : undefined,
+        message: message.length === 2 ? message[1] : message[0],
       };
+
     } else {
       return {
         status: 400,
@@ -87,10 +90,10 @@ async function getHandler(req, cb) {
 
 function handle(cb) {
   return async (req, res) => {
-    const { status, message, headers = {}, data } = await getHandler(req, cb);
+    const { status, message, field, headers = {}, data } = await getHandler(req, cb);
 
     // res.writeHead(200, undefined, headers)
-    res.send({ status, message, data });
+    res.send({ status, message, field, data });
   };
 }
 
@@ -151,6 +154,8 @@ routes.post("/:siteId/pages/createPage", auth, handle(createPage));
 routes.post("/:siteId/pages/updatePage", auth, handle(updatePage));
 routes.post("/:siteId/pages/removePage", auth, handle(removePage));
 routes.post("/:siteId/pages/getPages", auth, handle(getPages));
+routes.post("/:siteId/pages/getPageCss", auth, handle(getPageCss));
+
 
 // components
 routes.post(

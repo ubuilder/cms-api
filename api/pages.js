@@ -2,29 +2,30 @@ import postcss from "postcss";
 import {validatePageCreate, validatePageUpdate} from "../validators/PageValidator.js"
 
 import tailwind from "tailwindcss";
+import { getComponents } from "./components.js";
 
-async function generateBaseCss() {
-    const tailwindConfig = {
-        darkMode: "class",
-      };
-    
-      const css = await postcss(
-        tailwind({
-          ...tailwindConfig,
-          content: {
-            files: [
-              { raw: '', extension: "html" },
-            ],
-          },
-        })
-      )
-        .process(`@tailwind base;`)
-        .then((res) => {
-          return res.css;
-        })
-      
-        return css
+async function generateCss(templates) {
+  const tailwindConfig = {
+    darkMode: "class",
+  };
+
+  const css = await postcss(
+    tailwind({
+      ...tailwindConfig,
+      content: {
+        files: templates.map(x => ({raw: x, extension: 'html'}))
+      },
+    })
+  )
+    .process(`@tailwind base; @tailwind utilities;`)
+    .then((res) => {
+      return res.css;
+    })
+  
+    return css
+
 }
+
 
 export async function createPage({body, db}) {
     const title = body.title
@@ -48,7 +49,6 @@ export async function createPage({body, db}) {
         actions,
         slot,
         head,
-        css: await generateBaseCss(),
         dir,
         description
     }
@@ -66,7 +66,6 @@ export async function createPage({body, db}) {
 
 export async function updatePage({body, db}) {
 
-    delete body.data['css'] // css is readonly
     await db('u-pages').update(body.id, body.data)
 
     await validatePageUpdate(body.data, db, body.id)
@@ -96,4 +95,23 @@ export async function getPages({body, db}) {
         message: 'success!',
         data
     }
+}
+
+export async function getPageCss({body, db, params}) {
+
+  const page_id = body.page_id;
+
+  const components = getComponents({body: {}, db, params})
+
+  // filter components by page id
+
+
+  const css = await generateCss((await components).data.data.map(x => x.template));
+
+
+  return {
+    message: 'Success',
+    status: 200,
+    data: css
+  }  
 }
