@@ -3,9 +3,10 @@ import { validateTableCreate, validateTableUpdate} from "../validators/TableVali
 
 export async function createTable({ body, db }) {
   const name = body.name;
-  let slug = body.slug ?? slugify(body.name);
   const fields = body.fields ?? [];
   const icon = body.icon ?? [];
+
+  let slug = slugify(body.name);
 
   await validateTableCreate(body, db)
 
@@ -29,7 +30,10 @@ export async function createTable({ body, db }) {
 
 export async function updateTable({ body, db }) {
 
+  body.data.slug = slugify(body.data.name)
+
   await validateTableUpdate(body.data, db, body.id)
+
   
   await db("u-tables").update(body.id, body.data);
 

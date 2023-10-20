@@ -5,13 +5,13 @@ export async function login({ body: { password, username }, db }) {
   const user = await db("u-users").get({ where: { username } });
   
   if (!user) {
-    throw new Error("404: user not found");
+    throw new Error("404:username: user not found");
   }
 
   const result = bcrypt.compareSync(password, user.password);
 
   if (!result) {
-    throw new Error("401: Invalid password");
+    throw new Error("401:password: Invalid password");
   }
 
   let token = jwt.sign(
@@ -46,6 +46,18 @@ export function logout({ db }) {
 }
 
 export async function register({ db, body }) {
+  if(!body.username) {
+    throw new Error('400:username: this field is required!')
+  }
+  if(!body.password) {
+    throw new Error('400:password: this field is required!')
+  }
+  if(!body.name) {
+    throw new Error('400:name: this field is required!')
+  }
+  
+  
+  
   const user = {
     username: body.username,
     name: body.name,

@@ -32,7 +32,7 @@ async function generateCss(template) {
 export async function createComponent({ body, db, params }) {
   const name = body.name;
 
-  if (!name) throw new Error("400: name: Name is required");
+  if (!name) throw new Error("400:name: Name is required");
   
   // validate tempalte should be string or undefined
   
@@ -63,7 +63,7 @@ export async function createComponent({ body, db, params }) {
 }
 
 export async function updateComponent({ body, db, params}) {
-  body.data.css = await generateCss(body.data.template);
+  // body.data.css = await generateCss(body.data.template);
 
   if(body.data.template) {
     const path = `./data/${params.siteId}/components/${body.id}.hbs`

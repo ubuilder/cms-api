@@ -2,10 +2,10 @@ async function preparePayload({
   mode,
   db,
   body,
-  table: tableName,
+  table: tableId,
   afterInsert,
 }) {
-  const table = await db("u-tables").get({ where: { slug: tableName } });
+  const table = await db("u-tables").get({ where: { id: tableId } });
 
   if (!table) throw new Error("404: Table not found!");
 
@@ -99,7 +99,7 @@ async function preparePayload({
         // user.posts
         // update other table
         const otherTable = await db("u-tables").get({
-          where: { slug: field.table },
+          where: { id: field.table },
         });
         const otherField = otherTable.fields.find(
           (x) => x.type === "relation" && x.name === field.field
@@ -111,7 +111,7 @@ async function preparePayload({
             afterInsert(async (id) => {
 
               for (let otherId of body[field.name]) {
-                await db(otherTable.slug).update(otherId, {
+                await db(otherTable.id).update(otherId, {
                   [field.field + "_id"]: id, // id of new inserted item
                 });
               }
@@ -119,7 +119,7 @@ async function preparePayload({
           } else {
 
             for (let otherId of body[field.name]) {
-              await db(otherTable.slug).update(otherId, {
+              await db(otherTable.id).update(otherId, {
                 [field.field + "_id"]: id, // id of new inserted item
               });
             }
@@ -134,12 +134,12 @@ async function preparePayload({
       } else {
         // blog.author
         const otherTable = await db("u-tables").get({
-          where: { slug: field.table },
+          where: { id: field.table },
         });
         const otherField = otherTable.fields.find(
           (x) =>
             x.type === "relation" &&
-            x.table === tableName &&
+            x.table === tableId &&
             x.multiple &&
             x.field === field.name
         );
@@ -246,7 +246,7 @@ export async function getData({ body, db }) {
     perPage: body.perPage,
     page: body.page,
   });
-  const table = await db("u-tables").get({ where: { slug: body.table } });
+  const table = await db("u-tables").get({ where: { id: body.table } });
 
   for (let value of rows.data) {
     for (let field of table.fields) {
