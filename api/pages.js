@@ -101,7 +101,7 @@ export async function getPageCss({body, db, params}) {
 
   const page_id = body.page_id;
 
-  const components = getComponents({body: {}, db, params})
+  const components = getComponents({body: {perPage: 1000}, db, params})
 
   // filter components by page id
 

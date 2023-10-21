@@ -1,4 +1,5 @@
 export async function getForms({body, db}) {
+    console.log('getForms', body)
 
     return {
         message: 'success',
@@ -11,12 +12,16 @@ export async function submitForm({body, db}) {
     // form => string
     // page => page id (string)
     // data => object (anything)
+    console.log('submitForm', body)
     
+    const created_at = new Date().valueOf()
 
     const result = await db('u-forms').insert({
         form: body.form, // string
+        pathname: body.pathname,
         page: body.page,
-        data: body.data
+        data: body.data,
+        created_at
     })
 
     return {

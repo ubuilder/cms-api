@@ -30,7 +30,7 @@ import {
 } from "./api/components.js";
 import { getSettings, setSettings } from "./api/settings.js";
 import { getDb } from "./lib/db.js";
-import { submitForm } from "./api/form.js";
+import { getForms, submitForm } from "./api/form.js";
 
 
 async function auth(req, res, next) {
@@ -187,8 +187,8 @@ routes.post("/:siteId/data/updateData", auth, handle(updateData));
 routes.post("/:siteId/data/removeData", auth, handle(removeData));
 
 // forms
-routes.post('/:siteId/forms/submitForm', handle(submitForm));
-routes.post('/:siteId/forms/getForms', handle(getForms));
+routes.post('/:siteId/form/submitForm', handle(submitForm));
+routes.post('/:siteId/form/getForms', handle(getForms));
 
 // pages
 routes.post("/:siteId/pages/createPage", auth, handle(createPage));
