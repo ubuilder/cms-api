@@ -280,3 +280,33 @@ export async function getData({ body, db }) {
     data: rows,
   };
 }
+
+
+export async function getDataHistory({body, db}) {
+  if(!body.table) {
+    throw new Error(`400:table: this field is required!`);
+  }
+  
+  const rows = await db(body.table).history({where: body.where, page: body.page, perPage: body.perPage})
+  
+  console.log('getDataHistory', body.table)
+  console.log(rows)
+  
+  return {
+    status: 200,
+    message: 'success!',
+    data: rows
+  }
+}
+
+export async function recoverData({body, db}) {
+
+  await db(body.table).recover(body.history_id)
+  
+  
+  return {
+    status: 200, 
+    message: 'success!',
+    data: true
+  }
+}

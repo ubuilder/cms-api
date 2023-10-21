@@ -2,16 +2,22 @@ import { Router } from "express";
 import { readdir, stat } from "fs/promises";
 import { existsSync, mkdirSync } from "fs";
 import { getUser, login, logout, register } from "./api/auth.js";
-import { connect, id } from "@ulibs/db";
+import { connect, id as getId } from "@ulibs/db";
 import jwt from "jsonwebtoken";
-import { createPage, getPageCss, getPages, removePage, updatePage } from "./api/pages.js";
+import {
+  createPage,
+  getPageCss,
+  getPages,
+  removePage,
+  updatePage,
+} from "./api/pages.js";
 import {
   createTable,
   getTables,
   removeTable,
   updateTable,
 } from "./api/content.js";
-import { getData, insertData, removeData, updateData } from "./api/data.js";
+import { getData, getDataHistory, insertData, recoverData, removeData, updateData } from "./api/data.js";
 import { getFiles, removeFile, updateFile } from "./api/assets.js";
 import multer from "multer";
 import path from "path";
@@ -22,6 +28,85 @@ import {
   updateComponent,
 } from "./api/components.js";
 import { getSettings, setSettings } from "./api/settings.js";
+
+function getDb(siteId, user) {
+  const getModel = connect({
+    filename: "./data/" + siteId + "/db.json",
+  }).getModel;
+
+  const getHistoryModel = connect({
+    filename: "./data/" + siteId + "/db_history.json",
+  }).getModel;
+
+  return (table) => {
+    const db = getModel(table);
+    const historyDb = getHistoryModel(table);
+
+    async function insert(data) {
+      const res = await db.insert(data);
+      await historyDb.insert({
+        data: {id: res[0], ...data},
+        type: "insert",
+        created_at: new Date().valueOf(),
+        created_by: user?.id ?? null,
+      });
+
+      return res;
+    }
+
+    async function update(id, data) {
+      const res = await db.update(id, data);
+      await historyDb.insert({
+        data: await db.get({ where: { id } }),
+        changed: data,
+        type: "update",
+        created_at: new Date().valueOf(),
+        created_by: user?.id ?? null,
+      });
+
+      return res;
+    }
+
+    async function remove(id, data) {
+      const res = await db.remove(id);
+
+      await historyDb.insert({
+        type: "remove",
+        created_at: new Date().valueOf(),
+        created_by: user?.id ?? null,
+      });
+
+      return res;
+    }
+
+    async function recover(history_id) {
+      const data = await historyDb.get({ where: { id: history_id } });
+
+      const id = data.data.id;
+      const body = data.data;
+      await db.update(id, body);
+
+      await historyDb.insert({
+        type: "recover",
+        history_id,
+        created_at: new Date().valueOf(),
+        created_by: user?.id ?? null,
+      });
+
+      return body;
+    }
+
+    return {
+      insert,
+      update,
+      remove,
+      history: historyDb.query,
+      recover,
+      query: db.query,
+      get: db.get,
+    };
+  };
+}
 
 async function auth(req, res, next) {
   try {
@@ -70,15 +155,13 @@ async function getHandler(req, cb) {
   } catch (err) {
     console.log(err.name, err.message);
     if (err.message.includes(":")) {
-
-      const [status,...message] = err.message.split(":").map((x) => x.trim());     
-      console.log('message: ', message)
+      const [status, ...message] = err.message.split(":").map((x) => x.trim());
+      console.log("message: ", message);
       return {
         status,
         field: message.length === 2 ? message[0] : undefined,
         message: message.length === 2 ? message[1] : message[0],
       };
-
     } else {
       return {
         status: 400,
@@ -90,7 +173,13 @@ async function getHandler(req, cb) {
 
 function handle(cb) {
   return async (req, res) => {
-    const { status, message, field, headers = {}, data } = await getHandler(req, cb);
+    const {
+      status,
+      message,
+      field,
+      headers = {},
+      data,
+    } = await getHandler(req, cb);
 
     // res.writeHead(200, undefined, headers)
     res.send({ status, message, field, data });
@@ -125,9 +214,7 @@ routes.use("/:siteId", (req, res, next) => {
     mkdirSync(`./data/${req.params.siteId}/files`, { recursive: true });
   }
 
-  req.db = connect({
-    filename: "./data/" + req.params.siteId + "/db.json",
-  }).getModel;
+  req.db = getDb(req.params.siteId);
 
   next();
 });
@@ -146,6 +233,8 @@ routes.post("/:siteId/content/removeTable", auth, handle(removeTable));
 // data
 routes.post("/:siteId/data/insertData", auth, handle(insertData));
 routes.post("/:siteId/data/getData", auth, handle(getData));
+routes.post("/:siteId/data/getDataHistory", auth, handle(getDataHistory));
+routes.post("/:siteId/data/recoverData", auth, handle(recoverData));
 routes.post("/:siteId/data/updateData", auth, handle(updateData));
 routes.post("/:siteId/data/removeData", auth, handle(removeData));
 
@@ -155,7 +244,6 @@ routes.post("/:siteId/pages/updatePage", auth, handle(updatePage));
 routes.post("/:siteId/pages/removePage", auth, handle(removePage));
 routes.post("/:siteId/pages/getPages", auth, handle(getPages));
 routes.post("/:siteId/pages/getPageCss", auth, handle(getPageCss));
-
 
 // components
 routes.post(
@@ -193,7 +281,7 @@ routes.post(
         return cb(null, "./data/" + req.params.siteId + "/files");
       },
       filename: (req, file, cb) => {
-        return cb(null, id());
+        return cb(null, getId());
       },
     }),
   }).single("file"),
