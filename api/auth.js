@@ -76,9 +76,38 @@ export async function register({ db, body }) {
 }
 
 export async function getUser({ db, body, user }) {
+  const result = await db('u-users').get({where: {id: user.id}})
+
+  delete result['password']
+  
   return {
     status: 200,
     message: "success",
-    data: user,
+    data: result,
   };
+}
+
+export async function hasUser({db, body}) {
+  const users = await db('u-users').query().then(res => res.data)
+  
+  return {
+    status: 200,
+    message: 'success',
+    data: users.length > 0
+  }
+}
+
+export async function updateProfile({body, db, user}) {
+  
+
+  await db('u-users').update(user.id, {
+    ...user, 
+    ...body
+  }) 
+
+  return {
+    status: 200,
+    message: 'User updated sucessfully',
+    data: true
+  }
 }

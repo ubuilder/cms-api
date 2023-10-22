@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { readdir, stat } from "fs/promises";
 import { existsSync, mkdirSync } from "fs";
-import { getUser, login, logout, register } from "./api/auth.js";
+import { getUser, hasUser, login, logout, register, updateProfile } from "./api/auth.js";
 import { connect, id as getId } from "@ulibs/db";
 
 import jwt from "jsonwebtoken";
@@ -171,6 +171,10 @@ routes.post("/:siteId/auth/login", handle(login));
 routes.post("/:siteId/auth/logout", auth, handle(logout));
 routes.post("/:siteId/auth/register", handle(register));
 routes.post("/:siteId/auth/getUser", auth, handle(getUser));
+routes.post("/:siteId/auth/hasUser", handle(hasUser));
+routes.post("/:siteId/auth/updateProfile", handle(updateProfile));
+
+
 
 // content
 routes.post("/:siteId/content/createTable", auth, handle(createTable));

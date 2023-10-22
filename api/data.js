@@ -272,6 +272,15 @@ export async function getData({ body, db }) {
         }
       }
     }
+
+    console.log({where: {id: value.created_by}})
+    if(value.created_by) {
+      value.created_by = await db('u-users').get({where: {id: value.created_by}})
+    }
+    if(value.updated_by) {
+      value.updated_by = await db('u-users').get({where: {id: value.updated_by}})
+    }
+    console.log(await db('u-users').get())
   }
 
   return {
@@ -291,6 +300,10 @@ export async function getDataHistory({body, db}) {
   
   console.log('getDataHistory', body.table)
   console.log(rows)
+
+  for(let row of rows.data) {
+    row.created_by = await db('u-users').get({where: {id: row.created_by ?? ''}})
+  }  
   
   return {
     status: 200,
@@ -301,6 +314,7 @@ export async function getDataHistory({body, db}) {
 
 export async function recoverData({body, db}) {
 
+  console.log(body)
   await db(body.table).recover(body.history_id)
   
   
