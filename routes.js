@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { readdir, stat } from "fs/promises";
-import { existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { getUser, hasUser, login, logout, register, updateProfile } from "./api/auth.js";
 import { connect, id as getId } from "@ulibs/db";
 
@@ -160,6 +160,9 @@ export { routes };
 routes.use("/:siteId", softAuth, (req, res, next) => {
   if (!existsSync(`./data/${req.params.siteId}`)) {
     mkdirSync(`./data/${req.params.siteId}/files`, { recursive: true });
+    mkdirSync(`./data/${req.params.siteId}/components`, { recursive: true });
+    writeFileSync(`./data/${req.params.siteId}/db.json`, '{}')
+
   }
 
   req.db = getDb(req.params.siteId, req.user);
@@ -198,8 +201,8 @@ routes.post('/:siteId/form/getForms', handle(getForms));
 routes.post("/:siteId/pages/createPage", auth, handle(createPage));
 routes.post("/:siteId/pages/updatePage", auth, handle(updatePage));
 routes.post("/:siteId/pages/removePage", auth, handle(removePage));
-routes.post("/:siteId/pages/getPages", auth, handle(getPages));
-routes.post("/:siteId/pages/getPageCss", auth, handle(getPageCss));
+routes.post("/:siteId/pages/getPages", handle(getPages));
+routes.post("/:siteId/pages/getPageCss", handle(getPageCss));
 
 // components
 routes.post(
@@ -217,11 +220,11 @@ routes.post(
   auth,
   handle(removeComponent)
 );
-routes.post("/:siteId/components/getComponents", auth, handle(getComponents));
+routes.post("/:siteId/components/getComponents", handle(getComponents));
 
 // settings
 routes.post("/:siteId/settings/setSettings", auth, handle(setSettings));
-routes.post("/:siteId/settings/getSettings", auth, handle(getSettings));
+routes.post("/:siteId/settings/getSettings", handle(getSettings));
 
 // assets
 routes.post("/:siteId/assets/updateFile", auth, handle(updateFile));
