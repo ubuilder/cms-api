@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "dependencies": {
+    "@tailwindcss/typography": "^0.5.10",
     "@ulibs/db": "^1.0.1-next.36",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
