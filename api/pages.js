@@ -1,6 +1,7 @@
 import postcss from "postcss";
 import {validatePageCreate, validatePageUpdate} from "../validators/PageValidator.js"
 
+import typography  from '@tailwindcss/typography'
 import tailwind from "tailwindcss";
 import { getComponents } from "./components.js";
 
@@ -15,6 +16,9 @@ async function generateCss(templates) {
       content: {
         files: templates.map(x => ({raw: x, extension: 'html'}))
       },
+      plugins: [
+        typography
+      ]
     })
   )
     .process(`@tailwind base; @tailwind utilities;`)
