@@ -96,6 +96,8 @@ async function getHandler(req, cb) {
   const query = req.query;
   const db = req.db;
 
+  params.siteId = params.siteId.replace(':', '_')
+  
   const user = req.user ?? null;
 
   try {
@@ -158,14 +160,15 @@ const routes = Router();
 export { routes };
 
 routes.use("/:siteId", softAuth, (req, res, next) => {
-  if (!existsSync(`./data/${req.params.siteId}`)) {
-    mkdirSync(`./data/${req.params.siteId}/files`, { recursive: true });
-    mkdirSync(`./data/${req.params.siteId}/components`, { recursive: true });
-    writeFileSync(`./data/${req.params.siteId}/db.json`, '{}')
+  req.siteId = req.params.siteId.replace(':', '_')
+  if (!existsSync(`./data/${req.siteId}`)) {
+    mkdirSync(`./data/${req.siteId}/files`, { recursive: true });
+    mkdirSync(`./data/${req.siteId}/components`, { recursive: true });
+    writeFileSync(`./data/${req.siteId}/db.json`, '{}')
 
   }
 
-  req.db = getDb(req.params.siteId, req.user);
+  req.db = getDb(req.siteId, req.user);
 
   next();
 });
@@ -237,7 +240,7 @@ routes.post(
   multer({
     storage: multer.diskStorage({
       destination: (req, file, cb) => {
-        return cb(null, "./data/" + req.params.siteId + "/files");
+        return cb(null, "./data/" + req.siteId + "/files");
       },
       filename: (req, file, cb) => {
         return cb(null, getId());
@@ -270,6 +273,6 @@ routes.get("/:siteId/files/:fileId", (req, res) => {
   // send file
 
   res.sendFile(req.params.fileId, {
-    root: path.resolve("./data/" + req.params.siteId + "/files/"),
+    root: path.resolve("./data/" + req.siteId + "/files/"),
   });
 });
