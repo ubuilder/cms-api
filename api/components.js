@@ -43,14 +43,17 @@ export async function createComponent({ body, db, params }) {
   
   const component = {
     name,
-    // template: body.template ?? "",
+    raw: body.template ? true : false,
+    slot: body.slot ?? [],
     fields: body.fields ?? [],
     css: body.template ? await generateCss(body.template) : ''
   };
 
   const [id] = await db("u-components").insert(component);
 
-  writeFileSync(`./data/${params.siteId}/components/${id}.hbs`, body.template ?? '');
+  if(body.raw) {
+    writeFileSync(`./data/${params.siteId}/components/${id}.hbs`, body.template ?? '');
+  }
 
 
   component.id = id;
@@ -86,7 +89,11 @@ export async function removeComponent({ body, db, params }) {
   await db("u-components").remove(body.id);
 
   const path = `./data/${params.siteId}/components/${body.id}.hbs`
-  rmSync(path);
+  try {
+    rmSync(path);
+  } catch(err) {
+    // 
+  }
 
   return {
     status: 200,
@@ -102,7 +109,7 @@ export async function getComponents({ body, db, params }) {
   });
 
   data.data.map(x => {
-    x.template = readFileSync(`./data/${params.siteId}/components/${x.id}.hbs`, 'utf-8')
+    x.template = x.raw ? readFileSync(`./data/${params.siteId}/components/${x.id}.hbs`, 'utf-8') : ''
     return x
   })
 
