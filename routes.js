@@ -104,6 +104,7 @@ async function getHandler(req, cb) {
     return await cb({ body, params, headers, query, db, user });
   } catch (err) {
     console.log(err.name, err.message);
+    console.log(err)
     if (err.message.includes(":")) {
       const [status, ...message] = err.message.split(":").map((x) => x.trim());
       console.log("message: ", message);

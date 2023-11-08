@@ -78,7 +78,9 @@ export async function register({ db, body }) {
 export async function getUser({ db, body, user }) {
   const result = await db('u-users').get({where: {id: user.id}})
 
-  delete result['password']
+  if(result) {
+    delete result['password']
+  }
   
   return {
     status: 200,
