@@ -117,7 +117,7 @@ async function getGlobalComponents({user}) {
 
 }
 
-export async function getComponents({ body, db, params, user }) {
+export async function getComponents({ siteId, body, db, params, user }) {
   const globalComponents = await getGlobalComponents({user})
   
   const data = await db("u-components").query({
@@ -131,7 +131,9 @@ export async function getComponents({ body, db, params, user }) {
     return x
   })
 
-  data.data = [...globalComponents, data.data]
+  if(siteId !== 'components') {
+    data.data = [...globalComponents, data.data]
+  }
 
   return {
     status: 200,
