@@ -104,7 +104,7 @@ export async function removeComponent({ body, db, params }) {
 
 async function getGlobalComponents({user}) {
   const globalDb = getDb('components', user)
-  const data = await globalDb.query({
+  const data = await globalDb('u-components').query({
     perPage: 1000
   })
 
