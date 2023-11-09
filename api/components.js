@@ -1,6 +1,7 @@
 import postcss from "postcss";
 import tailwind from "tailwindcss";
 import {writeFileSync, rmSync, readFileSync, existsSync, mkdirSync} from 'fs'
+import { getDb } from "../lib/db.js";
 
 async function generateCss(template) {
   const tailwindConfig = {
