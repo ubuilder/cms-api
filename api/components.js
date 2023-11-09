@@ -101,7 +101,25 @@ export async function removeComponent({ body, db, params }) {
   };
 }
 
-export async function getComponents({ body, db, params }) {
+async function getGlobalComponents({user}) {
+  const globalDb = getDb('components', user)
+  const data = await globalDb.query({
+    perPage: 1000
+  })
+
+
+  return data.data.map(x => {
+    x.template = x.raw ? readFileSync(`./data/components/components/${x.id}.hbs`, 'utf-8') : ''
+    
+    x.global = true
+    return x
+  })
+
+}
+
+export async function getComponents({ body, db, params, user }) {
+  const globalComponents = await getGlobalComponents({user})
+  
   const data = await db("u-components").query({
     where: body.where,
     perPage: body.perPage,
@@ -112,6 +130,8 @@ export async function getComponents({ body, db, params }) {
     x.template = x.raw ? readFileSync(`./data/${params.siteId}/components/${x.id}.hbs`, 'utf-8') : ''
     return x
   })
+
+  data.data = [...globalComponents, data.data]
 
   return {
     status: 200,

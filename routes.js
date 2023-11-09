@@ -249,7 +249,7 @@ routes.post(
     }),
   }).single("file"),
   async (req, res) => {
-    const id = req.file.path.split("/").pop();
+    const id = (req.file.path.split("/").pop()).split('\\').pop();
 
     const data = {
       id,
