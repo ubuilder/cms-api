@@ -133,7 +133,7 @@ export async function getComponents({ siteId, body, db, params, user }) {
   })
 
   if(siteId !== 'components') {
-    data.data = [...globalComponents, data.data]
+    data.data = [...globalComponents, ...data.data]
   }
 
   return {
