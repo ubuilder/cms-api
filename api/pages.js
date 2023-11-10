@@ -41,7 +41,7 @@ export async function createPage({body, db}) {
     const dir = body.dir ?? 'ltr';
     const head = body.head ?? `<meta name="description" content="{{page.description}}"/>
 <title>{{page.title}}</title>
-<script src="//unpkg.com/alpinejs" defer></script>`
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>`
     const description = body.description ?? ''
        
     await validatePageCreate(body, db)
