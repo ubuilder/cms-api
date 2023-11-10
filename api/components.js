@@ -129,6 +129,7 @@ export async function getComponents({ siteId, body, db, params, user }) {
 
   data.data.map(x => {
     x.template = x.raw ? readFileSync(`./data/${params.siteId}/components/${x.id}.hbs`, 'utf-8') : ''
+    x.global = false
     return x
   })
 
