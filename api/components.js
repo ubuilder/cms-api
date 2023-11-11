@@ -69,10 +69,10 @@ export async function createComponent({ body, db, params }) {
 export async function updateComponent({ body, db, params}) {
   // body.data.css = await generateCss(body.data.template);
 
-  if(body.data.template) {
+  if(body.data.raw) {
     const path = `./data/${params.siteId}/components/${body.id}.hbs`
   
-    writeFileSync(path, body.data.template);
+    writeFileSync(path, body.data.template ?? '');
   }
   
   delete body.data['template']
