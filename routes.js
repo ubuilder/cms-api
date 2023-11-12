@@ -40,6 +40,18 @@ async function auth(req, res, next) {
   try {
     const authorization = req.headers.authorization ?? "";
     const token = authorization.split(" ")[1];
+
+    if(!token && req.params.siteId === 'demo') {
+      req.user = {
+        id: "demo",
+        name: "Demo",
+        email: "demo@gmail.com",
+        username: "123",
+        password: ""
+      }
+      return next()
+    }
+    
     if (!token) throw new Error("401: jwt token not provided");
     const user = jwt.verify(token, process.env.SECRET_KEY ?? "ubuilder");
 
