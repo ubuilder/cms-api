@@ -1,8 +1,6 @@
 import { Router } from "express";
-import { readdir, stat } from "fs/promises";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { getUser, hasUser, login, logout, register, updateProfile } from "./api/auth.js";
-import { connect, id as getId } from "@ulibs/db";
 
 import jwt from "jsonwebtoken";
 import {
@@ -144,31 +142,12 @@ function handle(cb) {
       data,
     } = await getHandler(req, cb);
 
-    // res.writeHead(200, undefined, headers)
     res.send({ status, message, field, data });
   };
 }
 
 const routes = Router();
 
-// async function addFolderRoutes(folder = './api') {
-//   const files = await readdir(folder)
-//   for(let file of files) {
-//     const stats = await stat(folder + '/' + file)
-//     if(stats.mode === 16877) {
-//       addFolderRoutes(folder + '/' + file)
-//     } else {
-//       const module = await import(folder +'/' + file)
-//       Object.keys(module).forEach(fn => {
-//         const route = folder.substring(1) + '/' + file.replace('.js', '') + '/' + fn
-//         console.log('add route: ', route)
-//         routes.get(route, handle(module[fn]))
-//       })
-//     }
-//   }
-// }
-
-// await addFolderRoutes('./api')
 
 export { routes };
 
@@ -271,8 +250,6 @@ routes.post(
     };
     await req.db("u-assets").insert(data);
 
-    // TODO: "implement File upload"
-
     res.send({
       status: 200,
       message: "File uploaded syccessfully!",
@@ -283,7 +260,6 @@ routes.post(
 
 // Download
 routes.get("/:siteId/files/:fileId", (req, res) => {
-  // send file
 
   res.sendFile(req.params.fileId, {
     root: path.resolve("./data/" + req.siteId + "/files/"),
