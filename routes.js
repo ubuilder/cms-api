@@ -32,6 +32,7 @@ import { getForms, submitForm } from "./api/form.js";
 
 
 async function auth(req, res, next) {
+  console.log('req.user: ', req.user)
   if(req.user) return next(); // softAuth
 
 
