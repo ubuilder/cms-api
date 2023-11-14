@@ -92,7 +92,14 @@ export async function getUser({ db, body, user }) {
   };
 }
 
-export async function hasUser({db, body}) {
+export async function hasUser({db, body, user}) {
+  if(user.id === 'demo') {
+    return {
+      status: 200,
+      message: 'success',
+      data: true
+    }
+  }
   const users = await db('u-users').query().then(res => res.data)
   
   return {
