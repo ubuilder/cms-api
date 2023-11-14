@@ -92,8 +92,8 @@ export async function getUser({ db, body, user }) {
   };
 }
 
-export async function hasUser({db, body, user}) {
-  if(user.id === 'demo') {
+export async function hasUser({db, params, body, user}) {
+  if(params.siteId === 'demo') {
     return {
       status: 200,
       message: 'success',

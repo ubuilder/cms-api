@@ -170,7 +170,7 @@ routes.post("/:siteId/auth/login", handle(login));
 routes.post("/:siteId/auth/logout", auth, handle(logout));
 routes.post("/:siteId/auth/register", handle(register));
 routes.post("/:siteId/auth/getUser", auth, handle(getUser));
-routes.post("/:siteId/auth/hasUser", handle(hasUser));
+routes.post("/:siteId/auth/hasUser", softAuth, handle(hasUser));
 routes.post("/:siteId/auth/updateProfile", handle(updateProfile));
 
 
