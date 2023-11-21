@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { getUser, hasUser, login, logout, register, updateProfile } from "./api/auth.js";
+import {id as getId} from '@ulibs/db'
 
 import jwt from "jsonwebtoken";
 import {
